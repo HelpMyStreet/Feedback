@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using FeedbackService.Core.Exceptions;
 using FeedbackService.Core.Interfaces.Repositories;
 using HelpMyStreet.Contracts.FeedbackService.Request;
 using HelpMyStreet.Utils.Enums;
-using HelpMyStreet.Utils.Models;
+using HelpMyStreet.Utils.Extensions;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -45,7 +45,7 @@ namespace FeedbackService.Repo
 
         public async Task<bool> FeedbackExists(int jobId, RequestRoles requestRoles, int? userId)
         {
-            var feedback = _context.Feedback.Where(x => x.JobId == jobId && (RequestRoles)x.RequestRoleTypeId == requestRoles && x.UserId == userId).FirstOrDefault();
+            var feedback = _context.Feedback.Where(x => x.JobId == jobId && (RequestRoles)x.RequestRoleTypeId == requestRoles && (requestRoles.LimitOneFeedbackPerRequest() || x.UserId == userId)).FirstOrDefault();
            
             if(feedback!=null)
             {
