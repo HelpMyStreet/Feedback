@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HelpMyStreet.CoreV3.Contracts" Version="1.1.527" />
+    <PackageReference Include="HelpMyStreet.CoreV3.Contracts" Version="1.1.843" />
     <PackageReference Include="MediatR" Version="8.1.0" />
   </ItemGroup>
 
