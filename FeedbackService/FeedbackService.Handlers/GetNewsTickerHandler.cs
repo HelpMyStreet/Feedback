@@ -4,6 +4,7 @@ using HelpMyStreet.Contracts;
 using HelpMyStreet.Contracts.FeedbackService.Request;
 using HelpMyStreet.Utils.Enums;
 using MediatR;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -28,11 +29,28 @@ namespace FeedbackService.Handlers
             };
 
             var feedbackSummary = await _repository.FeedbackSummary(request.GroupId);
-            
-            response.Messages.Add(GetNewsTickerMessage(feedbackSummary.Where(x => x.RequestRoles == RequestRoles.Volunteer), " from volunteers"));
-            response.Messages.Add(GetNewsTickerMessage(feedbackSummary.Where(x => x.RequestRoles == RequestRoles.Requestor || x.RequestRoles == RequestRoles.Recipient), " people requesting or receiving help"));
-            response.Messages.Add(GetNewsTickerMessage(feedbackSummary, string.Empty));            
-            
+
+            var volunteerMessages = GetNewsTickerMessage(feedbackSummary.Where(x => x.RequestRoles == RequestRoles.Volunteer), " from volunteers");
+
+            if(volunteerMessages!=null)
+            {
+                response.Messages.Add(volunteerMessages);
+            }
+
+            var requestorMessages = GetNewsTickerMessage(feedbackSummary.Where(x => x.RequestRoles == RequestRoles.Requestor || x.RequestRoles == RequestRoles.Recipient), " from people requesting or receiving help");
+
+            if (requestorMessages != null)
+            {
+                response.Messages.Add(requestorMessages);
+            }
+
+            var allMessages = GetNewsTickerMessage(feedbackSummary, string.Empty);
+
+            if (allMessages != null)
+            {
+                response.Messages.Add(allMessages);
+            }
+
             return response;
         }
 
@@ -50,7 +68,7 @@ namespace FeedbackService.Handlers
                     newsTickerMessage = new NewsTickerMessage()
                     {
                         Value = positivefeedbackPercentage,
-                        Message = $"**{ positivefeedbackPercentage }%** positive feedback{message}"
+                        Message = $"**{ Math.Round(positivefeedbackPercentage,1) }%** positive feedback{message}"
                     };
                 }                
             }

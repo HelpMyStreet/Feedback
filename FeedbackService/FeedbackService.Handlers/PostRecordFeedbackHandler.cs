@@ -33,11 +33,11 @@ namespace FeedbackService.Handlers
                 }
                 else
                 {
-                    var jobDetails = await _requestService.GetJobDetails(request.JobId);
+                    var jobSummary = await _requestService.GetJobSummary(request.JobId);
 
-                    if (jobDetails != null)
+                    if (jobSummary != null)
                     {
-                        int referringGroupId = jobDetails.JobSummary.ReferringGroupID;
+                        int referringGroupId = jobSummary.RequestSummary.ReferringGroupID;
                         bool success = await _repository.AddFeedback(request, referringGroupId);
 
                         var response = new PostRecordFeedbackResponse()

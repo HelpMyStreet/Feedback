@@ -8,6 +8,6 @@ namespace FeedbackService.Core.Interfaces.Services
 {
     public interface IRequestService
     {
-        Task<GetJobDetailsResponse> GetJobDetails(int jobId);
+        Task<GetJobSummaryResponse> GetJobSummary(int jobId);
     }
 }

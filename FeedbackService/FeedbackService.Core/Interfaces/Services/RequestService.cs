@@ -21,14 +21,14 @@ namespace FeedbackService.Core.Interfaces.Services
             _httpClientWrapper = httpClientWrapper;
         }
 
-        public async Task<GetJobDetailsResponse> GetJobDetails(int jobId)
+        public async Task<GetJobSummaryResponse> GetJobSummary(int jobId)
         {
-            string path = $"/api/GetJobDetails?jobID={jobId}&userId=-1";
+            string path = $"/api/GetJobSummary?jobID={jobId}&userId=-1";
             string absolutePath = $"{path}";
             using (HttpResponseMessage response = await _httpClientWrapper.GetAsync(HttpClientConfigName.RequestService, absolutePath, CancellationToken.None).ConfigureAwait(false))
             {
                 string jsonResponse = await response.Content.ReadAsStringAsync();
-                var getJobsResponse = JsonConvert.DeserializeObject<ResponseWrapper<GetJobDetailsResponse, RequestServiceErrorCode>>(jsonResponse);
+                var getJobsResponse = JsonConvert.DeserializeObject<ResponseWrapper<GetJobSummaryResponse, RequestServiceErrorCode>>(jsonResponse);
                 if (getJobsResponse.HasContent && getJobsResponse.IsSuccessful)
                 {
                     return getJobsResponse.Content;

@@ -22,7 +22,7 @@ namespace FeedbackService.UnitTests.Handlers
         private Mock<IRequestService> _requestService;
         private bool _feedbackAdded;
         private bool _feedbackExists;
-        private GetJobDetailsResponse _getJobDetailsResponse;
+        private GetJobSummaryResponse _getJobSummaryResponse;
 
         [SetUp]
         public void Setup()
@@ -46,8 +46,8 @@ namespace FeedbackService.UnitTests.Handlers
         private void SetupRequestService()
         {
             _requestService = new Mock<IRequestService>();
-            _requestService.Setup(x => x.GetJobDetails(It.IsAny<int>()))
-               .ReturnsAsync(() => _getJobDetailsResponse);
+            _requestService.Setup(x => x.GetJobSummary(It.IsAny<int>()))
+               .ReturnsAsync(() => _getJobSummaryResponse);
         }
 
         [Test]
@@ -55,11 +55,12 @@ namespace FeedbackService.UnitTests.Handlers
         {
             _feedbackExists = false;
             _feedbackAdded = true;
-            _getJobDetailsResponse = new GetJobDetailsResponse()
+            _getJobSummaryResponse = new GetJobSummaryResponse()
             {
-                JobSummary = new HelpMyStreet.Utils.Models.JobSummary()
+                RequestSummary = new HelpMyStreet.Utils.Models.RequestSummary()
                 {
                     ReferringGroupID = -1
+
                 }
             };
 
