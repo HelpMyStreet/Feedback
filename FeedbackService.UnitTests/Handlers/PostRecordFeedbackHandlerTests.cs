@@ -1,7 +1,9 @@
 ﻿using FeedbackService.Core.Exceptions;
 using FeedbackService.Core.Interfaces.Repositories;
+using FeedbackService.Core.Interfaces.Services;
 using FeedbackService.Handlers;
 using HelpMyStreet.Contracts.FeedbackService.Request;
+using HelpMyStreet.Contracts.RequestService.Response;
 using HelpMyStreet.Utils.Enums;
 using Moq;
 using NUnit.Framework;
@@ -17,21 +19,35 @@ namespace FeedbackService.UnitTests.Handlers
     {
         private PostRecordFeedbackHandler _classUnderTest;
         private Mock<IRepository> _repository;
+        private Mock<IRequestService> _requestService;
         private bool _feedbackAdded;
         private bool _feedbackExists;
+        private GetJobSummaryResponse _getJobSummaryResponse;
 
         [SetUp]
         public void Setup()
         {
+            SetupRepository();
+            SetupRequestService();
+            _classUnderTest = new PostRecordFeedbackHandler(_repository.Object, _requestService.Object);
+
+        }
+
+        private void SetupRepository()
+        {
             _repository = new Mock<IRepository>();
-            _repository.Setup(x => x.AddFeedback(It.IsAny<PostRecordFeedbackRequest>()))
+            _repository.Setup(x => x.AddFeedback(It.IsAny<PostRecordFeedbackRequest>(), It.IsAny<int>()))
                 .ReturnsAsync(() => _feedbackAdded);
 
             _repository.Setup(x => x.FeedbackExists(It.IsAny<int>(), It.IsAny<RequestRoles>(), It.IsAny<int?>()))
                .ReturnsAsync(() => _feedbackExists);
+        }
 
-            _classUnderTest = new PostRecordFeedbackHandler(_repository.Object);
-
+        private void SetupRequestService()
+        {
+            _requestService = new Mock<IRequestService>();
+            _requestService.Setup(x => x.GetJobSummary(It.IsAny<int>()))
+               .ReturnsAsync(() => _getJobSummaryResponse);
         }
 
         [Test]
@@ -39,6 +55,15 @@ namespace FeedbackService.UnitTests.Handlers
         {
             _feedbackExists = false;
             _feedbackAdded = true;
+            _getJobSummaryResponse = new GetJobSummaryResponse()
+            {
+                RequestSummary = new HelpMyStreet.Utils.Models.RequestSummary()
+                {
+                    ReferringGroupID = -1
+
+                }
+            };
+
             var result = _classUnderTest.Handle(new PostRecordFeedbackRequest()
             {
                 FeedbackRatingType = new FeedbackRatingType() { FeedbackRating = FeedbackRating.HappyFace},
@@ -52,7 +77,7 @@ namespace FeedbackService.UnitTests.Handlers
 
             Assert.AreEqual(_feedbackAdded, result.Success);
             _repository.Verify(x => x.FeedbackExists(It.IsAny<int>(), It.IsAny<RequestRoles>(), It.IsAny<int?>()), Times.Once);
-            _repository.Verify(x => x.AddFeedback(It.IsAny<PostRecordFeedbackRequest>()), Times.Once);
+            _repository.Verify(x => x.AddFeedback(It.IsAny<PostRecordFeedbackRequest>(), It.IsAny<int>()), Times.Once);
         }
 
         [Test]
@@ -73,7 +98,7 @@ namespace FeedbackService.UnitTests.Handlers
             }, CancellationToken.None));
 
             _repository.Verify(x => x.FeedbackExists(It.IsAny<int>(), It.IsAny<RequestRoles>(), It.IsAny<int?>()), Times.Once);
-            _repository.Verify(x => x.AddFeedback(It.IsAny<PostRecordFeedbackRequest>()), Times.Never);
+            _repository.Verify(x => x.AddFeedback(It.IsAny<PostRecordFeedbackRequest>(), It.IsAny<int>()), Times.Never);
 
         }
     }
