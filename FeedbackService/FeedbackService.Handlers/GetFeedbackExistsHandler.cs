@@ -17,7 +17,7 @@ namespace FeedbackService.Handlers
 
         public Task<bool> Handle(GetFeedbackExistsRequest request, CancellationToken cancellationToken)
         {
-            bool success = _repository.FeedbackExists(request.JobId, request.RequestRoleType.RequestRole, request.UserId).Result;            
+            bool success = _repository.FeedbackExists(request.JobId, request.RequestRoleType.RequestRole, request.UserId).Result;
             return Task.FromResult(success);
         }
     }
