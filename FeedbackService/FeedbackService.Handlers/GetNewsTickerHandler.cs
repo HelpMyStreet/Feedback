@@ -1,8 +1,8 @@
 ﻿using FeedbackService.Core.Domains;
 using FeedbackService.Core.Interfaces.Repositories;
 using HelpMyStreet.Contracts;
-using HelpMyStreet.Contracts.FeedbackService.Request;
 using HelpMyStreet.Utils.Enums;
+using HelpMyStreet.Utils.Models;
 using MediatR;
 using System;
 using System.Collections.Generic;
