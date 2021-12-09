@@ -88,15 +88,6 @@ namespace FeedbackService.UnitTests.Handlers
                 overallMessaage = true;
             }
 
-            //if (positivePercentage > 90)
-            //{
-            //    Assert.AreEqual(true, response.Messages.Contains(new NewsTickerMessage()
-            //    {
-            //        Value = positivePercentage,
-            //        Message = $"**{ positivePercentage }%** positive feedback"
-            //    }, _equalityComparer));
-            //}
-
             Assert.AreEqual(messageCount, response.Messages.Count);
         }
     }
