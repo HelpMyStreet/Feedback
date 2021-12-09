@@ -39,18 +39,18 @@ namespace FeedbackService.UnitTests.Handlers
                 .ReturnsAsync(() => _feedbackRatingCount);
         }
 
-        [TestCase(100, 10, 0, 0, 0, 0, "**90.9%** positive feedback", " from volunteers", "", 2)]
-        [TestCase(0, 0, 8, 2, 0, 0, "", "", "", 0)]
-        [TestCase(0, 0, 10, 5, 0, 0, "", "", "", 0)]
-        [TestCase(0, 0 , 0, 0 ,100, 10, "**90.9%** positive feedback", "", " from people requesting or receiving help", 2)]
-        [TestCase(0, 0, 0, 0, 8, 2, "", "", "", 0)]
-        [TestCase(0, 0, 0, 0, 10, 5, "", "", "", 0)]
+        [TestCase(100, 10, 0, 0, 0, 0, "**90.9%** positive feedback from volunteers", "", 2)]
+        [TestCase(0, 0, 8, 2, 0, 0,  "", "", 0)]
+        [TestCase(0, 0, 10, 5, 0, 0, "", "", 0)]
+        [TestCase(0, 0 , 0, 0 , 100, 10, "", "**90.9%** positive feedback from people requesting or receiving help", 2)]
+        [TestCase(0, 0, 0, 0, 8, 2, "", "", 0)]
+        [TestCase(0, 0, 0, 0, 10, 5, "", "", 0)]
         [Test]
         public async Task HappyPath(
             int volunteerHappyCount, int volunteerSadCount, 
             int requestorHappyCount, int requestorSadCount,
             int recipientHappyCount, int recipientSadCount,
-            string basicMessage, string volunteerMessage, string requestorMessage,
+            string volunteerMessage, string requestorMessage,
             int messageCount)
         {
             int? groupId = -3;
@@ -72,19 +72,13 @@ namespace FeedbackService.UnitTests.Handlers
 
             if (!string.IsNullOrEmpty(volunteerMessage))
             {
-                Assert.AreEqual(1, response.Messages.Count(x => x.Message == basicMessage + volunteerMessage));
+                Assert.AreEqual(1, response.Messages.Count(x => x.Message == volunteerMessage));
                 overallMessaage = true;
             }
 
             if (!string.IsNullOrEmpty(requestorMessage))
             {
-                Assert.AreEqual(1, response.Messages.Count(x => x.Message == basicMessage + requestorMessage));
-                overallMessaage = true;
-            }
-
-            if (!string.IsNullOrEmpty(basicMessage))
-            {
-                Assert.AreEqual(1, response.Messages.Count(x => x.Message == basicMessage));
+                Assert.AreEqual(1, response.Messages.Count(x => x.Message == requestorMessage));
                 overallMessaage = true;
             }
 
