@@ -39,42 +39,63 @@ namespace FeedbackService.UnitTests.Handlers
                 .ReturnsAsync(() => _feedbackRatingCount);
         }
 
-        [TestCase(RequestRoles.Volunteer, 100, 10, 90.9, "**90.9%** positive feedback from volunteers", 2)]
-        [TestCase(RequestRoles.Volunteer, 8, 2, 80.0, "", 0)]
-        [TestCase(RequestRoles.Volunteer, 10, 5, 66.7, "", 0)]
-        [TestCase(RequestRoles.Requestor, 100, 10, 90.9, "**90.9%** positive feedback from people requesting or receiving help", 2)]
-        [TestCase(RequestRoles.Requestor, 8, 2, 80.0,"", 0)]
-        [TestCase(RequestRoles.Requestor, 10, 5, 66.7,"", 0)]
+        [TestCase(100, 10, 0, 0, 0, 0, "**90.9%** positive feedback", " from volunteers", "", 2)]
+        [TestCase(0, 0, 8, 2, 0, 0, "", "", "", 0)]
+        [TestCase(0, 0, 10, 5, 0, 0, "", "", "", 0)]
+        [TestCase(0, 0 , 0, 0 ,100, 10, "**90.9%** positive feedback", "", " from people requesting or receiving help", 2)]
+        [TestCase(0, 0, 0, 0, 8, 2, "", "", "", 0)]
+        [TestCase(0, 0, 0, 0, 10, 5, "", "", "", 0)]
         [Test]
-        public async Task HappyPath(RequestRoles role, int happyCount, int sadCount, double positivePercentage, string message, int messageCount)
+        public async Task HappyPath(
+            int volunteerHappyCount, int volunteerSadCount, 
+            int requestorHappyCount, int requestorSadCount,
+            int recipientHappyCount, int recipientSadCount,
+            string basicMessage, string volunteerMessage, string requestorMessage,
+            int messageCount)
         {
             int? groupId = -3;
             _feedbackRatingCount = new List<FeedbackRatingCount>();
-            _feedbackRatingCount.Add(new FeedbackRatingCount() { RequestRoles = role, Value = happyCount, FeedbackRating = FeedbackRating.HappyFace });
-            _feedbackRatingCount.Add(new FeedbackRatingCount() { RequestRoles = role, Value = sadCount, FeedbackRating = FeedbackRating.SadFace });
+            _feedbackRatingCount.Add(new FeedbackRatingCount() { RequestRoles = RequestRoles.Volunteer, Value = volunteerHappyCount, FeedbackRating = FeedbackRating.HappyFace });
+            _feedbackRatingCount.Add(new FeedbackRatingCount() { RequestRoles = RequestRoles.Volunteer, Value = volunteerSadCount, FeedbackRating = FeedbackRating.SadFace });
+            _feedbackRatingCount.Add(new FeedbackRatingCount() { RequestRoles = RequestRoles.Requestor, Value = requestorHappyCount, FeedbackRating = FeedbackRating.HappyFace });
+            _feedbackRatingCount.Add(new FeedbackRatingCount() { RequestRoles = RequestRoles.Requestor, Value = requestorSadCount, FeedbackRating = FeedbackRating.SadFace });
+            _feedbackRatingCount.Add(new FeedbackRatingCount() { RequestRoles = RequestRoles.Recipient, Value = recipientHappyCount, FeedbackRating = FeedbackRating.HappyFace });
+            _feedbackRatingCount.Add(new FeedbackRatingCount() { RequestRoles = RequestRoles.Recipient, Value = recipientSadCount, FeedbackRating = FeedbackRating.SadFace });
+
 
             NewsTickerResponse response = await _classUnderTest.Handle(new NewsTickerRequest()
             {
                 GroupId = groupId
             }, CancellationToken.None);
 
-            if (positivePercentage > 90)
+            bool overallMessaage = false;
+
+            if (!string.IsNullOrEmpty(volunteerMessage))
             {
-                Assert.AreEqual(true, response.Messages.Contains(new NewsTickerMessage()
-                {
-                    Value = positivePercentage,
-                    Message = message
-                }, _equalityComparer));
+                Assert.AreEqual(1, response.Messages.Count(x => x.Message == basicMessage + volunteerMessage));
+                overallMessaage = true;
             }
 
-            if (positivePercentage > 90)
+            if (!string.IsNullOrEmpty(requestorMessage))
             {
-                Assert.AreEqual(true, response.Messages.Contains(new NewsTickerMessage()
-                {
-                    Value = positivePercentage,
-                    Message = $"**{ positivePercentage }%** positive feedback"
-                }, _equalityComparer));
+                Assert.AreEqual(1, response.Messages.Count(x => x.Message == basicMessage + requestorMessage));
+                overallMessaage = true;
             }
+
+            if (!string.IsNullOrEmpty(basicMessage))
+            {
+                Assert.AreEqual(1, response.Messages.Count(x => x.Message == basicMessage));
+                overallMessaage = true;
+            }
+
+            //if (positivePercentage > 90)
+            //{
+            //    Assert.AreEqual(true, response.Messages.Contains(new NewsTickerMessage()
+            //    {
+            //        Value = positivePercentage,
+            //        Message = $"**{ positivePercentage }%** positive feedback"
+            //    }, _equalityComparer));
+            //}
 
             Assert.AreEqual(messageCount, response.Messages.Count);
         }
