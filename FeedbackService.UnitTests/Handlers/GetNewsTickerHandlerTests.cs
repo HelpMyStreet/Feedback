@@ -39,14 +39,14 @@ namespace FeedbackService.UnitTests.Handlers
                 .ReturnsAsync(() => _feedbackRatingCount);
         }
 
-        [TestCase(RequestRoles.Volunteer, 100, 10, " from volunteers", 2)]
-        [TestCase(RequestRoles.Volunteer, 8, 2, " from volunteers", 0)]
-        [TestCase(RequestRoles.Volunteer, 10, 5, " from volunteers", 0)]
-        [TestCase(RequestRoles.Requestor, 100, 10, " from people requesting or receiving help", 2)]
-        [TestCase(RequestRoles.Requestor, 8, 2, " from people requesting or receiving help", 0)]
-        [TestCase(RequestRoles.Requestor, 10, 5, " from people requesting or receiving help", 0)]
+        [TestCase(RequestRoles.Volunteer, 100, 10, 90.9, "**90.9%** positive feedback from volunteers", 2)]
+        [TestCase(RequestRoles.Volunteer, 8, 2, 80.0, "", 0)]
+        [TestCase(RequestRoles.Volunteer, 10, 5, 66.7, "", 0)]
+        [TestCase(RequestRoles.Requestor, 100, 10, 90.9, "**90.9%** positive feedback from people requesting or receiving help", 2)]
+        [TestCase(RequestRoles.Requestor, 8, 2, 80.0,"", 0)]
+        [TestCase(RequestRoles.Requestor, 10, 5, 66.7,"", 0)]
         [Test]
-        public async Task HappyPath(RequestRoles role, int happyCount, int sadCount, string message, int messageCount)
+        public async Task HappyPath(RequestRoles role, int happyCount, int sadCount, double positivePercentage, string message, int messageCount)
         {
             int? groupId = -3;
             _feedbackRatingCount = new List<FeedbackRatingCount>();
@@ -58,25 +58,21 @@ namespace FeedbackService.UnitTests.Handlers
                 GroupId = groupId
             }, CancellationToken.None);
 
-            var totalFeedback = _feedbackRatingCount.Sum(x => x.Value);
-            var positivefeedback = _feedbackRatingCount.Where(x => x.FeedbackRating == FeedbackRating.HappyFace).Sum(x => x.Value);
-            var positivefeedbackPercentage = (positivefeedback / totalFeedback) * 100;
-
-            if (positivefeedbackPercentage > 90)
+            if (positivePercentage > 90)
             {
                 Assert.AreEqual(true, response.Messages.Contains(new NewsTickerMessage()
                 {
-                    Value = positivefeedbackPercentage,
-                    Message = $"**{ Math.Round(positivefeedbackPercentage, 1) }%** positive feedback{message}"
+                    Value = positivePercentage,
+                    Message = message
                 }, _equalityComparer));
             }
 
-            if (positivefeedback > 90)
+            if (positivePercentage > 90)
             {
                 Assert.AreEqual(true, response.Messages.Contains(new NewsTickerMessage()
                 {
-                    Value = positivefeedbackPercentage,
-                    Message = $"**{ Math.Round(positivefeedbackPercentage, 1) }%** positive feedback{message}"
+                    Value = positivePercentage,
+                    Message = $"**{ positivePercentage }%** positive feedback"
                 }, _equalityComparer));
             }
 
