@@ -45,6 +45,9 @@ namespace FeedbackService.UnitTests.Handlers
         [TestCase(0, 0 , 0, 0 , 100, 10, "", "**90.9%** positive feedback from people requesting or receiving help", 2)]
         [TestCase(0, 0, 0, 0, 8, 2, "", "", 0)]
         [TestCase(0, 0, 0, 0, 10, 5, "", "", 0)]
+        [TestCase(100, 10, 0, 0, 100, 10, "**90.9%** positive feedback from volunteers", "**90.9%** positive feedback from people requesting or receiving help", 3)]
+        [TestCase(100, 10, 90, 1, 100, 10, "**90.9%** positive feedback from volunteers", "**94.5%** positive feedback from people requesting or receiving help", 3)]
+
         [Test]
         public async Task HappyPath(
             int volunteerHappyCount, int volunteerSadCount, 
