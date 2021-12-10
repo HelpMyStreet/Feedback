@@ -22,13 +22,11 @@ namespace FeedbackService.UnitTests.Handlers
         private Mock<IRepository> _repository;
         private GetNewsTickerHandler _classUnderTest;
         private List<FeedbackRatingCount> _feedbackRatingCount;
-        private IEqualityComparer<NewsTickerMessage> _equalityComparer;
 
         [SetUp]
         public void Setup()
         {
             SetupRepository();
-            _equalityComparer = new NewsTickerMessages_EqualityComparer();
             _classUnderTest = new GetNewsTickerHandler(_repository.Object);
         }
 
@@ -71,18 +69,14 @@ namespace FeedbackService.UnitTests.Handlers
                 GroupId = groupId
             }, CancellationToken.None);
 
-            bool overallMessaage = false;
-
             if (!string.IsNullOrEmpty(volunteerMessage))
             {
                 Assert.AreEqual(1, response.Messages.Count(x => x.Message == volunteerMessage));
-                overallMessaage = true;
             }
 
             if (!string.IsNullOrEmpty(requestorMessage))
             {
                 Assert.AreEqual(1, response.Messages.Count(x => x.Message == requestorMessage));
-                overallMessaage = true;
             }
 
             Assert.AreEqual(messageCount, response.Messages.Count);
