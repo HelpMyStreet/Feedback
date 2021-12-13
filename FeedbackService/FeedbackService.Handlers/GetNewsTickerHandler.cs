@@ -1,8 +1,8 @@
 ﻿using FeedbackService.Core.Domains;
 using FeedbackService.Core.Interfaces.Repositories;
 using HelpMyStreet.Contracts;
-using HelpMyStreet.Contracts.FeedbackService.Request;
 using HelpMyStreet.Utils.Enums;
+using HelpMyStreet.Utils.Models;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -62,13 +62,13 @@ namespace FeedbackService.Handlers
             if (feedback != null && totalFeedback > 10)
             {
                 var positivefeedback = feedback.Where(x => x.FeedbackRating == FeedbackRating.HappyFace).Sum(x => x.Value);
-                var positivefeedbackPercentage = (positivefeedback / totalFeedback) * 100;
+                var positivefeedbackPercentage = Math.Round((positivefeedback / totalFeedback) * 100,1);
                 if (positivefeedbackPercentage > 90)
                 {
                     newsTickerMessage = new NewsTickerMessage()
                     {
                         Value = positivefeedbackPercentage,
-                        Message = $"**{ Math.Round(positivefeedbackPercentage,1) }%** positive feedback{message}"
+                        Message = $"**{ positivefeedbackPercentage }%** positive feedback{message}"
                     };
                 }                
             }
