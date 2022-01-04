@@ -37,21 +37,23 @@ namespace FeedbackService.UnitTests.Handlers
                 .ReturnsAsync(() => _feedbackRatingCount);
         }
 
-        [TestCase(100, 10, 0, 0, 0, 0, "**90.9%** positive feedback from volunteers", "", 2)]
-        [TestCase(0, 0, 8, 2, 0, 0,  "", "", 0)]
-        [TestCase(0, 0, 10, 5, 0, 0, "", "", 0)]
-        [TestCase(0, 0 , 0, 0 , 100, 10, "", "**90.9%** positive feedback from people requesting or receiving help", 2)]
-        [TestCase(0, 0, 0, 0, 8, 2, "", "", 0)]
-        [TestCase(0, 0, 0, 0, 10, 5, "", "", 0)]
-        [TestCase(100, 10, 0, 0, 100, 10, "**90.9%** positive feedback from volunteers", "**90.9%** positive feedback from people requesting or receiving help", 3)]
-        [TestCase(100, 10, 90, 1, 100, 10, "**90.9%** positive feedback from volunteers", "**94.5%** positive feedback from people requesting or receiving help", 3)]
-
+        [TestCase(100, 10, 0, 0, 0, 0, 0, 0, "**90.9%** positive feedback from volunteers", "", "", 1)]
+        [TestCase(0, 0, 8, 2, 0, 0, 0, 0, "", "", "", 0)]
+        [TestCase(0, 0, 10, 5, 0, 0, 0, 0, "", "", "", 0)]
+        [TestCase(0, 0, 0, 0, 100, 10, 0, 0, "", "**90.9%** positive feedback from people requesting or receiving help", "", 1)]
+        [TestCase(0, 0, 0, 0, 8, 2, 0, 0, "", "", "", 0)]
+        [TestCase(0, 0, 0, 0, 10, 5, 0, 0, "", "", "", 0)]
+        [TestCase(100, 10, 0, 0, 100, 10, 0, 0, "**90.9%** positive feedback from volunteers", "**90.9%** positive feedback from people requesting or receiving help", "", 2)]
+        [TestCase(100, 10, 90, 1, 100, 10, 0, 0, "**90.9%** positive feedback from volunteers", "**94.5%** positive feedback from people requesting or receiving help", "", 2)]
+        [TestCase(5, 1, 0, 0, 0, 0, 100, 10, "", "", "**90.5%** positive feedback", 1)]
         [Test]
         public async Task HappyPath(
             int volunteerHappyCount, int volunteerSadCount, 
             int requestorHappyCount, int requestorSadCount,
             int recipientHappyCount, int recipientSadCount,
+            int otherHappyCount, int otherSadCount,
             string volunteerMessage, string requestorMessage,
+            string allMessage,
             int messageCount)
         {
             int? groupId = -3;
@@ -62,6 +64,8 @@ namespace FeedbackService.UnitTests.Handlers
             _feedbackRatingCount.Add(new FeedbackRatingCount() { RequestRoles = RequestRoles.Requestor, Value = requestorSadCount, FeedbackRating = FeedbackRating.SadFace });
             _feedbackRatingCount.Add(new FeedbackRatingCount() { RequestRoles = RequestRoles.Recipient, Value = recipientHappyCount, FeedbackRating = FeedbackRating.HappyFace });
             _feedbackRatingCount.Add(new FeedbackRatingCount() { RequestRoles = RequestRoles.Recipient, Value = recipientSadCount, FeedbackRating = FeedbackRating.SadFace });
+            _feedbackRatingCount.Add(new FeedbackRatingCount() { RequestRoles = RequestRoles.GroupAdmin, Value = otherHappyCount, FeedbackRating = FeedbackRating.HappyFace });
+            _feedbackRatingCount.Add(new FeedbackRatingCount() { RequestRoles = RequestRoles.GroupAdmin, Value = otherSadCount, FeedbackRating = FeedbackRating.SadFace });
 
 
             NewsTickerResponse response = await _classUnderTest.Handle(new NewsTickerRequest()
@@ -77,6 +81,11 @@ namespace FeedbackService.UnitTests.Handlers
             if (!string.IsNullOrEmpty(requestorMessage))
             {
                 Assert.AreEqual(1, response.Messages.Count(x => x.Message == requestorMessage));
+            }
+
+            if (!string.IsNullOrEmpty(allMessage))
+            {
+                Assert.AreEqual(1, response.Messages.Count(x => x.Message == allMessage));
             }
 
             Assert.AreEqual(messageCount, response.Messages.Count);
