@@ -44,11 +44,14 @@ namespace FeedbackService.Handlers
                 response.Messages.Add(requestorMessages);
             }
 
-            var allMessages = GetNewsTickerMessage(feedbackSummary, string.Empty);
-
-            if (allMessages != null)
+            if (response.Messages.Count() == 0)
             {
-                response.Messages.Add(allMessages);
+                var allMessages = GetNewsTickerMessage(feedbackSummary, string.Empty);
+
+                if (allMessages != null)
+                {
+                    response.Messages.Add(allMessages);
+                }
             }
 
             return response;
